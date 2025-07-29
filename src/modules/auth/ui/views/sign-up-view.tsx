@@ -160,7 +160,8 @@ const SignUpView = () => {
                                     <Alert className="bg-destructive/10 border-none">
                                         <OctagonAlertIcon className="h-4 w-4 !text-destructive" />
                                         <AlertTitle>
-                                            Incorrect email or password
+                                            Unable to create account. Please try
+                                            again.
                                         </AlertTitle>
                                     </Alert>
                                 )}
@@ -168,10 +169,10 @@ const SignUpView = () => {
                                     {pending ? (
                                         <div className="flex items-center gap-2">
                                             <Loader2Icon className="animate-spin" />
-                                            Signing in
+                                            Creating account....
                                         </div>
                                     ) : (
-                                        'Sign In'
+                                        'Sign Up'
                                     )}
                                 </Button>
                                 <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
