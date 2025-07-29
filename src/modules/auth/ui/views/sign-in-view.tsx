@@ -139,6 +139,11 @@ const SignInView = () => {
                                         variant={'outline'}
                                         type="button"
                                         className="w-full"
+                                        onClick={() => {
+                                            authClient.signIn.social({
+                                                provider: 'google',
+                                            });
+                                        }}
                                     >
                                         Google
                                     </Button>
@@ -146,6 +151,11 @@ const SignInView = () => {
                                         variant={'outline'}
                                         type="button"
                                         className="w-full"
+                                        onClick={() => {
+                                            authClient.signIn.social({
+                                                provider: 'github',
+                                            });
+                                        }}
                                     >
                                         Github
                                     </Button>
