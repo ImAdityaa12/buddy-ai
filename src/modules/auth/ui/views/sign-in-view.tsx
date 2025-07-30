@@ -20,11 +20,15 @@ import { Loader2Icon, OctagonAlertIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
+
 const formSchema = z.object({
     email: z.email(),
     password: z.string().min(1, 'Password is required'),
 });
 const SignInView = () => {
+    const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [pending, setPending] = useState<boolean>(false);
     const form = useForm<z.infer<typeof formSchema>>({
@@ -47,6 +51,7 @@ const SignInView = () => {
             {
                 onSuccess: () => {
                     setPending(false);
+                    router.push('/');
                 },
                 onError: ({ error }) => {
                     setPending(false);
@@ -160,7 +165,7 @@ const SignInView = () => {
                                             onSocial('google');
                                         }}
                                     >
-                                        Google
+                                        <FaGoogle />
                                     </Button>
                                     <Button
                                         variant={'outline'}
@@ -170,7 +175,7 @@ const SignInView = () => {
                                             onSocial('github');
                                         }}
                                     >
-                                        Github
+                                        <FaGithub />
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">

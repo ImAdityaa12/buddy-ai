@@ -20,6 +20,9 @@ import { Loader2Icon, OctagonAlertIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
+
 const formSchema = z
     .object({
         email: z.email(),
@@ -32,6 +35,7 @@ const formSchema = z
         path: ['confirmPassword'],
     });
 const SignUpView = () => {
+    const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [pending, setPending] = useState<boolean>(false);
     const form = useForm<z.infer<typeof formSchema>>({
@@ -57,6 +61,7 @@ const SignUpView = () => {
             {
                 onSuccess: () => {
                     setPending(false);
+                    router.push('/');
                 },
                 onError: ({ error }) => {
                     setPending(false);
@@ -177,10 +182,7 @@ const SignUpView = () => {
                                 {!!error && (
                                     <Alert className="bg-destructive/10 border-none">
                                         <OctagonAlertIcon className="h-4 w-4 !text-destructive" />
-                                        <AlertTitle>
-                                            Unable to create account. Please try
-                                            again.
-                                        </AlertTitle>
+                                        <AlertTitle>{error}</AlertTitle>
                                     </Alert>
                                 )}
                                 <Button type="submit" disabled={pending}>
@@ -207,7 +209,7 @@ const SignUpView = () => {
                                             onSocial('google');
                                         }}
                                     >
-                                        Google
+                                        <FaGoogle />
                                     </Button>
                                     <Button
                                         variant={'outline'}
@@ -217,7 +219,7 @@ const SignUpView = () => {
                                             onSocial('github');
                                         }}
                                     >
-                                        Github
+                                        <FaGithub />
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">
