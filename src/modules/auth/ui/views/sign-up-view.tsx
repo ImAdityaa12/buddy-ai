@@ -19,8 +19,10 @@ import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Loader2Icon, OctagonAlertIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
+
 const formSchema = z
     .object({
         email: z.email(),
@@ -54,11 +56,32 @@ const SignUpView = () => {
                 email: data.email,
                 password: data.password,
                 name: data.name,
+                callbackURL: '/',
             },
             {
                 onSuccess: () => {
                     setPending(false);
                     router.push('/');
+                },
+                onError: ({ error }) => {
+                    setPending(false);
+                    setError(error.message);
+                },
+            }
+        );
+    };
+
+    const onSocial = (provider: 'github' | 'google') => {
+        setError(null);
+        setPending(true);
+
+        authClient.signIn.social(
+            {
+                provider,
+            },
+            {
+                onSuccess: () => {
+                    setPending(false);
                 },
                 onError: ({ error }) => {
                     setPending(false);
@@ -159,10 +182,7 @@ const SignUpView = () => {
                                 {!!error && (
                                     <Alert className="bg-destructive/10 border-none">
                                         <OctagonAlertIcon className="h-4 w-4 !text-destructive" />
-                                        <AlertTitle>
-                                            Unable to create account. Please try
-                                            again.
-                                        </AlertTitle>
+                                        <AlertTitle>{error}</AlertTitle>
                                     </Alert>
                                 )}
                                 <Button type="submit" disabled={pending}>
@@ -186,24 +206,20 @@ const SignUpView = () => {
                                         type="button"
                                         className="w-full"
                                         onClick={() => {
-                                            authClient.signIn.social({
-                                                provider: 'google',
-                                            });
+                                            onSocial('google');
                                         }}
                                     >
-                                        Google
+                                        <FaGoogle />
                                     </Button>
                                     <Button
                                         variant={'outline'}
                                         type="button"
                                         className="w-full"
                                         onClick={() => {
-                                            authClient.signIn.social({
-                                                provider: 'github',
-                                            });
+                                            onSocial('github');
                                         }}
                                     >
-                                        Github
+                                        <FaGithub />
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">
