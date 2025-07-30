@@ -19,7 +19,6 @@ import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Loader2Icon, OctagonAlertIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 const formSchema = z
     .object({
@@ -33,7 +32,6 @@ const formSchema = z
         path: ['confirmPassword'],
     });
 const SignUpView = () => {
-    const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [pending, setPending] = useState<boolean>(false);
     const form = useForm<z.infer<typeof formSchema>>({
@@ -54,11 +52,11 @@ const SignUpView = () => {
                 email: data.email,
                 password: data.password,
                 name: data.name,
+                callbackURL: '/',
             },
             {
                 onSuccess: () => {
                     setPending(false);
-                    router.push('/');
                 },
                 onError: ({ error }) => {
                     setPending(false);
@@ -79,7 +77,6 @@ const SignUpView = () => {
             {
                 onSuccess: () => {
                     setPending(false);
-                    router.push('/');
                 },
                 onError: ({ error }) => {
                     setPending(false);

@@ -19,14 +19,12 @@ import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Loader2Icon, OctagonAlertIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 const formSchema = z.object({
     email: z.email(),
     password: z.string().min(1, 'Password is required'),
 });
 const SignInView = () => {
-    const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [pending, setPending] = useState<boolean>(false);
     const form = useForm<z.infer<typeof formSchema>>({
@@ -44,11 +42,11 @@ const SignInView = () => {
             {
                 email: data.email,
                 password: data.password,
+                callbackURL: '/',
             },
             {
                 onSuccess: () => {
                     setPending(false);
-                    router.push('/');
                 },
                 onError: ({ error }) => {
                     setPending(false);
@@ -64,11 +62,11 @@ const SignInView = () => {
         authClient.signIn.social(
             {
                 provider,
+                callbackURL: '/',
             },
             {
                 onSuccess: () => {
                     setPending(false);
-                    router.push('/');
                 },
                 onError: ({ error }) => {
                     setPending(false);
