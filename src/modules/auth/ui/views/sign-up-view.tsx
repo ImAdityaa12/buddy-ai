@@ -235,7 +235,7 @@ const SignUpView = () => {
                         </form>
                     </Form>
                     {/* TODO: Add logo and text */}
-                    <div className=" relative hidden md:flex flex-col gap-y-4 items-center justify-center">
+                    <div className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-4 items-center justify-center">
                         <Image
                             src="/logo.svg"
                             alt="logo"
