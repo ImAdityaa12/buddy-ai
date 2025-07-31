@@ -77,7 +77,9 @@ const DashboardUserButton = () => {
                 <DrawerContent>
                     <DrawerHeader>
                         <DrawerTitle>{data.user.name}</DrawerTitle>
-                        <DrawerTitle>{data.user.email}</DrawerTitle>
+                        <p className="text-sm text-muted-foreground">
+                            {data.user.email}
+                        </p>
                     </DrawerHeader>
                     <DrawerFooter>
                         <Button variant={'outline'} onClick={() => {}}>
