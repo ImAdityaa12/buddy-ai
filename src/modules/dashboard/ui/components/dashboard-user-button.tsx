@@ -12,6 +12,7 @@ import { authClient } from '@/lib/auth-client';
 import { ChevronDownIcon, CreditCardIcon, LogOutIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { toast } from 'sonner';
 
 const DashboardUserButton = () => {
     const router = useRouter();
@@ -22,6 +23,9 @@ const DashboardUserButton = () => {
             fetchOptions: {
                 onSuccess: () => {
                     router.push('/sign-in');
+                },
+                onError: ({ error }) => {
+                    toast.error(error.message);
                 },
             },
         });
