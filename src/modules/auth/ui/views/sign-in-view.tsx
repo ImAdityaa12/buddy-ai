@@ -24,8 +24,8 @@ import { useRouter } from 'next/navigation';
 import { FaGithub, FaGoogle } from 'react-icons/fa';
 
 const formSchema = z.object({
-    email: z.email(),
-    password: z.string().min(1, 'Password is required'),
+    email: z.string().email('Invalid email'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 const SignInView = () => {
     const router = useRouter();

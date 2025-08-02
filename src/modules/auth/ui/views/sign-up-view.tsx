@@ -25,13 +25,19 @@ import { FaGithub, FaGoogle } from 'react-icons/fa';
 
 const formSchema = z
     .object({
-        email: z.email(),
-        password: z.string().min(1, 'Password is required'),
-        name: z.string().min(1, 'Name is required'),
-        confirmPassword: z.string().min(1, 'Password is required'),
+        email: z.string().email('Invalid email'),
+        password: z.string().min(1, {
+            message: 'Password must be at least 8 characters',
+        }),
+        name: z.string().min(1, {
+            message: 'Name is required',
+        }),
+        confirmPassword: z.string().min(8, {
+            message: 'Password must be at least 8 characters',
+        }),
     })
     .refine((data) => data.password === data.confirmPassword, {
-        error: 'Passwords do not match',
+        message: 'Passwords do not match',
         path: ['confirmPassword'],
     });
 const SignUpView = () => {
