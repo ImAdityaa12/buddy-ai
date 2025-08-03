@@ -6,7 +6,17 @@ import { getQueryClient, trpc } from '@/trpc/server';
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import React, { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-const page = () => {
+import { auth } from '../../../../auth';
+import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+
+const page = async () => {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+    if (!session) {
+        redirect('/sign-in');
+    }
     const queryClient = getQueryClient();
     void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions());
 
