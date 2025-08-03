@@ -1,12 +1,13 @@
 import LoadingState from '@/components/loading-state';
 import { AgentsView } from '@/modules/agents/ui/views/agents-view';
-import { getQueryClient, trpc } from '@/trpc/server';
+
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import React, { Suspense } from 'react';
+import { getQueryClient, trpc } from '../../../../trpc/server';
 
 const page = () => {
     const queryClient = getQueryClient();
-    void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions());
+    void queryClient.prefetchQuery(trpc.agentsagain.queryOptions());
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>

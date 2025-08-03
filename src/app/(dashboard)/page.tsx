@@ -1,17 +1,21 @@
 import HomeView from '@/modules/home/ui/views/home-view';
 import React from 'react';
-import { auth } from '../../../auth';
-import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { getQueryClient, trpc } from '../../../trpc/server';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
 const page = async () => {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
-    if (!session) {
-        redirect('/sign-in');
-    }
-    return <HomeView />;
+    const queryClient = getQueryClient();
+    void queryClient.prefetchQuery(
+        trpc.hello.queryOptions({
+            text: 'Hello',
+        })
+    );
+
+    return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <HomeView />
+        </HydrationBoundary>
+    );
 };
 
 export default page;
