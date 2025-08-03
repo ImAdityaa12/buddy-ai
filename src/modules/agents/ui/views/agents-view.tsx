@@ -1,5 +1,6 @@
 'use client';
 
+import ErrorState from '@/components/error-state';
 import LoadingState from '@/components/loading-state';
 import { useTRPC } from '@/trpc/client';
 import { useQuery } from '@tanstack/react-query';
@@ -22,9 +23,10 @@ export const AgentsView = () => {
     }
     if (isError) {
         return (
-            <div>
-                <p>Error loading agents</p>
-            </div>
+            <ErrorState
+                title="Error loading agents"
+                description="We were unable to load your agents. Please try again later."
+            />
         );
     }
     return <div>{JSON.stringify(agents, null, 2)}</div>;
