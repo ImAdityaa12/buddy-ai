@@ -1,9 +1,10 @@
+import ErrorState from '@/components/error-state';
 import LoadingState from '@/components/loading-state';
 import { AgentsView } from '@/modules/agents/ui/views/agents-view';
 import { getQueryClient, trpc } from '@/trpc/server';
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import React, { Suspense } from 'react';
-
+import { ErrorBoundary } from 'react-error-boundary';
 const page = () => {
     const queryClient = getQueryClient();
     void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions());
@@ -18,7 +19,16 @@ const page = () => {
                     />
                 }
             >
-                <AgentsView />
+                <ErrorBoundary
+                    fallback={
+                        <ErrorState
+                            title="Error loading agents"
+                            description="We were unable to load your agents. Please try again later."
+                        />
+                    }
+                >
+                    <AgentsView />
+                </ErrorBoundary>
             </Suspense>
         </HydrationBoundary>
     );
