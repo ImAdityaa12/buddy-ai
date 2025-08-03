@@ -1,3 +1,4 @@
+import { DEFAULT_PAGE } from '@/constants';
 import { parseAsString, useQueryStates, parseAsInteger } from 'nuqs';
 export const useAgentsFilters = () => {
     return useQueryStates({
@@ -5,7 +6,7 @@ export const useAgentsFilters = () => {
             .withDefault('')
             .withOptions({ clearOnDefault: true }),
         page: parseAsInteger
-            .withDefault(1)
+            .withDefault(DEFAULT_PAGE)
             .withOptions({ clearOnDefault: true }),
     });
 };
