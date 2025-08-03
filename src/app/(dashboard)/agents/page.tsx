@@ -1,5 +1,6 @@
 import ErrorState from '@/components/error-state';
 import LoadingState from '@/components/loading-state';
+import AgentListHeader from '@/modules/agents/ui/components/agent-list-header';
 import { AgentsView } from '@/modules/agents/ui/views/agents-view';
 import { getQueryClient, trpc } from '@/trpc/server';
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
@@ -10,27 +11,30 @@ const page = () => {
     void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions());
 
     return (
-        <HydrationBoundary state={dehydrate(queryClient)}>
-            <Suspense
-                fallback={
-                    <LoadingState
-                        title="Loading agents"
-                        description="We are loading your agents. Please wait."
-                    />
-                }
-            >
-                <ErrorBoundary
+        <>
+            <AgentListHeader />
+            <HydrationBoundary state={dehydrate(queryClient)}>
+                <Suspense
                     fallback={
-                        <ErrorState
-                            title="Error loading agents"
-                            description="We were unable to load your agents. Please try again later."
+                        <LoadingState
+                            title="Loading agents"
+                            description="We are loading your agents. Please wait."
                         />
                     }
                 >
-                    <AgentsView />
-                </ErrorBoundary>
-            </Suspense>
-        </HydrationBoundary>
+                    <ErrorBoundary
+                        fallback={
+                            <ErrorState
+                                title="Error loading agents"
+                                description="We were unable to load your agents. Please try again later."
+                            />
+                        }
+                    >
+                        <AgentsView />
+                    </ErrorBoundary>
+                </Suspense>
+            </HydrationBoundary>
+        </>
     );
 };
 
