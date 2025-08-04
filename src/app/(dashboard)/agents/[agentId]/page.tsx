@@ -1,3 +1,5 @@
+import ErrorState from '@/components/error-state';
+import LoadingState from '@/components/loading-state';
 import AgentIdView from '@/modules/agents/ui/views/agent-id-view';
 import { getQueryClient, trpc } from '@/trpc/server';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
@@ -19,8 +21,22 @@ const page = async ({ params }: Props) => {
     );
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <Suspense fallback={<p>Loading</p>}>
-                <ErrorBoundary fallback={<p>Error</p>}>
+            <Suspense
+                fallback={
+                    <LoadingState
+                        title="Loading agents"
+                        description="Loading agents"
+                    />
+                }
+            >
+                <ErrorBoundary
+                    fallback={
+                        <ErrorState
+                            title="Error loading agents"
+                            description="We were unable to load your agents. Please try again later."
+                        />
+                    }
+                >
                     <AgentIdView agentId={agentId} />
                 </ErrorBoundary>
             </Suspense>
