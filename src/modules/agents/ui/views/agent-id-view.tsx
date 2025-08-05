@@ -14,7 +14,7 @@ import { VideoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useConfirm } from '@/hooks/use-confirm';
-import UpdateAgentDialog from '../components/upate-agent-dialog';
+import UpdateAgentDialog from '../components/update-agent-dialog';
 
 interface AgentIdViewProps {
     agentId: string;
