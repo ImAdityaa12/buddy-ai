@@ -24,16 +24,16 @@ const page = async ({ params }: Props) => {
             <Suspense
                 fallback={
                     <LoadingState
-                        title="Loading agents"
-                        description="Loading agents"
+                        title="Loading agent"
+                        description="Loading agent details"
                     />
                 }
             >
                 <ErrorBoundary
                     fallback={
                         <ErrorState
-                            title="Error loading agents"
-                            description="We were unable to load your agents. Please try again later."
+                            title="Error loading agent"
+                            description="We were unable to load the agent details. Please try again later."
                         />
                     }
                 >
