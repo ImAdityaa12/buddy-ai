@@ -1,9 +1,10 @@
-import React from 'react'
+'use client';
+
+import MeetingsView from '@/modules/meeting/ui/views/meetings-view';
+import React from 'react';
 
 const page = () => {
-  return (
-    <div>page</div>
-  )
-}
+    return <MeetingsView />;
+};
 
-export default page
+export default page;
