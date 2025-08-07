@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { meetingsUpdateSchema } from '../../schema';
+import { meetingsInsertSchema } from '../../schema';
 import { MeetingGetOne } from '../../types';
 import CommandSelect from '@/components/command-select';
 import { GeneratedAvatar } from '@/components/generated-avatar';
@@ -77,8 +77,8 @@ const MeetingForm = ({
             },
         })
     );
-    const form = useForm<z.infer<typeof meetingsUpdateSchema>>({
-        resolver: zodResolver(meetingsUpdateSchema),
+    const form = useForm<z.infer<typeof meetingsInsertSchema>>({
+        resolver: zodResolver(meetingsInsertSchema),
         defaultValues: {
             name: initialValues?.name || '',
             agentId: initialValues?.agentId || '',
@@ -88,7 +88,7 @@ const MeetingForm = ({
     const isEdit = !!initialValues?.id;
     const isPending = createMeeting.isPending || updateMeeting.isPending;
 
-    const onSubmit = async (values: z.infer<typeof meetingsUpdateSchema>) => {
+    const onSubmit = async (values: z.infer<typeof meetingsInsertSchema>) => {
         console.log(values);
         if (isEdit) {
             updateMeeting.mutate({
