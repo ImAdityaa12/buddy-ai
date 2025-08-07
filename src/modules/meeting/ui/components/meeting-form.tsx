@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTRPC } from '@/trpc/client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,8 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { meetingsUpdateSchema } from '../../schema';
 import { MeetingGetOne } from '../../types';
+import CommandSelect from '@/components/command-select';
+import { GeneratedAvatar } from '@/components/generated-avatar';
 
 interface MeetingFormProps {
     onSuccess?: (id: string) => void;
@@ -31,6 +33,14 @@ const MeetingForm = ({
 }: MeetingFormProps) => {
     const trpc = useTRPC();
     const queryClient = useQueryClient();
+    const [agentSearch, setAgentSearch] = useState('');
+
+    const agents = useQuery(
+        trpc.agents.getMany.queryOptions({
+            pageSize: 100,
+            search: agentSearch,
+        })
+    );
 
     const createMeeting = useMutation(
         trpc.meetings.create.mutationOptions({
@@ -79,6 +89,7 @@ const MeetingForm = ({
     const isPending = createMeeting.isPending || updateMeeting.isPending;
 
     const onSubmit = async (values: z.infer<typeof meetingsUpdateSchema>) => {
+        console.log(values);
         if (isEdit) {
             updateMeeting.mutate({
                 ...values,
@@ -102,6 +113,40 @@ const MeetingForm = ({
                                 <Input
                                     {...field}
                                     placeholder="e.g Trying to improve my coding skills!"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    name="agentId"
+                    control={form.control}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Agent</FormLabel>
+                            <FormControl>
+                                <CommandSelect
+                                    options={(agents.data?.items ?? []).map(
+                                        (agent) => ({
+                                            id: agent.id,
+                                            value: agent.id,
+                                            children: (
+                                                <div className="flex items-ceter gap-x-2">
+                                                    <GeneratedAvatar
+                                                        seed={agent.name}
+                                                        variant="bottsNeutral"
+                                                        className="border size-6"
+                                                    />
+                                                    <span>{agent.name}</span>
+                                                </div>
+                                            ),
+                                        })
+                                    )}
+                                    onSelect={field.onChange}
+                                    onSearch={setAgentSearch}
+                                    value={field.value}
+                                    placeholder="Select an agent"
                                 />
                             </FormControl>
                             <FormMessage />
