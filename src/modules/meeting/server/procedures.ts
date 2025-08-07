@@ -32,7 +32,7 @@ export const meetingsRouter = createTRPCRouter({
             if (!updatedMeeting) {
                 throw new TRPCError({
                     code: 'NOT_FOUND',
-                    message: 'Agent Not Found',
+                    message: 'Meeting Not Found',
                 });
             }
 

@@ -20,8 +20,9 @@ const NewMeetingDialog = ({ open, onOpenChange }: NewMeetingDialogProps) => {
             <MeetingForm
                 onSuccess={(id) => {
                     router.push(`/meetings/${id}`);
+                    onOpenChange(false);
                 }}
-                onCancel={() => onOpenChange}
+                onCancel={() => onOpenChange(false)}
             />
         </ResponsiveDialog>
     );

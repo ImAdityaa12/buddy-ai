@@ -25,7 +25,7 @@ const MeetingListHeader = () => {
                         New Meeting
                     </Button>
                 </div>
-                <div className="flex items-ceter gap-x-2 p-1"></div>
+                <div className="flex items-center gap-x-2 p-1"></div>
             </div>
         </>
     );
