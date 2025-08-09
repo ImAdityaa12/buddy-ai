@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import NewMeetingDialog from './new-meeting-dialog';
 import MeetingsSearchFilter from './meetings-search-filter';
 import StatusFilters from './status-filters';
+import AgentIdFilters from './agent-id-filter';
 
 const MeetingListHeader = () => {
     const [meetingDialogOpen, setMeetingDialogOpen] = useState(false);
@@ -30,6 +31,7 @@ const MeetingListHeader = () => {
                 <div className="flex items-center gap-x-2 p-1">
                     <MeetingsSearchFilter />
                     <StatusFilters />
+                    <AgentIdFilters />
                 </div>
             </div>
         </>
