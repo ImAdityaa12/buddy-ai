@@ -36,6 +36,12 @@ const CommandSelect = ({
 }: CommandSelectProps) => {
     const [open, setOpen] = useState(false);
     const selectedOption = options.find((option) => option.value === value);
+
+    const handleOpenChange = (open: boolean) => {
+        onSearch?.('');
+        setOpen(open);
+    };
+
     return (
         <>
             <Button
@@ -52,7 +58,7 @@ const CommandSelect = ({
                 <ChevronsUpDownIcon />
                 <CommandResponsiveDialog
                     open={open}
-                    onOpenChange={setOpen}
+                    onOpenChange={handleOpenChange}
                     shouldFilter={false}
                 >
                     <CommandInput
