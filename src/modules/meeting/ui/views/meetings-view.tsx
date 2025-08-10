@@ -14,7 +14,11 @@ const MeetingsView = () => {
     const router = useRouter();
     const [filters, setFilters] = useMeetingFilters();
     const trpc = useTRPC();
-    const { data } = useSuspenseQuery(trpc.meetings.getMany.queryOptions({}));
+    const { data } = useSuspenseQuery(
+        trpc.meetings.getMany.queryOptions({
+            ...filters,
+        })
+    );
     return (
         <div className="p-4">
             <DataTable
