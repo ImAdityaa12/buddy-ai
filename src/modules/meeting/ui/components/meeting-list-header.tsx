@@ -8,6 +8,8 @@ import MeetingsSearchFilter from './meetings-search-filter';
 import StatusFilters from './status-filters';
 import AgentIdFilters from './agent-id-filter';
 import { useMeetingFilters } from '../../hooks/use-meetings-filters';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { DEFAULT_PAGE } from '@/constants';
 
 const MeetingListHeader = () => {
     const [filter, setFilter] = useMeetingFilters();
@@ -21,7 +23,7 @@ const MeetingListHeader = () => {
             agentId: '',
             status: null,
             search: '',
-            page: 1,
+            page: DEFAULT_PAGE,
         });
     };
 
@@ -43,19 +45,22 @@ const MeetingListHeader = () => {
                         New Meeting
                     </Button>
                 </div>
-                <div className="flex items-center gap-x-2 p-1">
-                    <MeetingsSearchFilter />
-                    <StatusFilters />
-                    <AgentIdFilters />
-                    {isAnyfilterModified && (
-                        <Button
-                            onClick={onClearFilters}
-                            disabled={!isAnyfilterModified}
-                        >
-                            <XCircleIcon />
-                        </Button>
-                    )}
-                </div>
+                <ScrollArea>
+                    <div className="flex items-center gap-x-2 p-1">
+                        <MeetingsSearchFilter />
+                        <StatusFilters />
+                        <AgentIdFilters />
+                        {isAnyfilterModified && (
+                            <Button
+                                onClick={onClearFilters}
+                                disabled={!isAnyfilterModified}
+                            >
+                                <XCircleIcon />
+                            </Button>
+                        )}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
             </div>
         </>
     );
