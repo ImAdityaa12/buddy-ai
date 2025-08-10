@@ -9,8 +9,15 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { auth } from '../../../../auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { loadSearchParams } from '@/modules/meeting/params';
+import { SearchParams } from 'nuqs';
 
-const page = async () => {
+interface Props {
+    searchParams: Promise<SearchParams>;
+}
+
+const page = async ({ searchParams }: Props) => {
+    const params = await loadSearchParams(searchParams);
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -20,7 +27,11 @@ const page = async () => {
     }
 
     const queryClient = getQueryClient();
-    void queryClient.prefetchQuery(trpc.meetings.getMany.queryOptions({}));
+    void queryClient.prefetchQuery(
+        trpc.meetings.getMany.queryOptions({
+            ...params,
+        })
+    );
 
     return (
         <>
