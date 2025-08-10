@@ -1,6 +1,7 @@
 import React from 'react';
 import { MeetingStatus } from '../../types';
 import {
+    CheckCircleIcon,
     CircleXIcon,
     ClockArrowUpIcon,
     LoaderIcon,
@@ -36,7 +37,7 @@ const options = [
         value: MeetingStatus.Completed,
         children: (
             <div className="flex items-center gap-x-2 capitalize">
-                <ClockArrowUpIcon />
+                <CheckCircleIcon />
                 {MeetingStatus.Completed}
             </div>
         ),
