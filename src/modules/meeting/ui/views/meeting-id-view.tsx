@@ -55,6 +55,13 @@ const MeetingIdView = ({ meetingId }: MeetingIdViewProps) => {
             id: meetingId,
         });
     };
+
+    const isActive = data.status === 'active';
+    const isProcessing = data.status === 'processing';
+    const isCompleted = data.status === 'completed';
+    const isCancelled = data.status === 'cancelled';
+    const isUpcoming = data.status === 'upcoming';
+
     return (
         <>
             <UpdateMeetingDialog
@@ -72,6 +79,11 @@ const MeetingIdView = ({ meetingId }: MeetingIdViewProps) => {
                     }}
                     onRemove={handleRemoveMeeting}
                 />
+                {isCancelled && <div>Cancelled</div>}
+                {isUpcoming && <div>Upcoming</div>}
+                {isActive && <div>Active</div>}
+                {isProcessing && <div>Processing</div>}
+                {isCompleted && <div>Completed</div>}
             </div>
         </>
     );
