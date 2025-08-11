@@ -15,7 +15,7 @@ export default function EmptyState({
         <div className="flex flex-col items-center justify-center">
             <Image
                 src={image}
-                alt="Empty"
+                alt={image}
                 width={240}
                 height={240}
                 className=""
