@@ -8,7 +8,8 @@
         "start": "next start",
         "lint": "next lint",
         "db:push": "drizzle-kit push",
-        "db:studio": "drizzle-kit studio"
+        "db:studio": "drizzle-kit studio",
+        "dev:webhook": "ngrok http --url=improved-humpback-clever.ngrok-free.app 3000"
     },
     "dependencies": {
         "@dicebear/collection": "^9.2.3",
