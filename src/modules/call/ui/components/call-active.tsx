@@ -1,12 +1,12 @@
-interface CallActiveProps {
-    onLeave: () => void;
-    meetingName: string;
-}
-
 import { CallControls, SpeakerLayout } from '@stream-io/video-react-sdk';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
+
+interface CallActiveProps {
+    onLeave: () => void;
+    meetingName: string;
+}
 
 const CallActive = ({ onLeave, meetingName }: CallActiveProps) => {
     return (

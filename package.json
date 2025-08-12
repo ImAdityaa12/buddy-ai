@@ -8,7 +8,8 @@
         "start": "next start",
         "lint": "next lint",
         "db:push": "drizzle-kit push",
-        "db:studio": "drizzle-kit studio"
+        "db:studio": "drizzle-kit studio",
+        "dev:webhook": "ngrok http --url=improved-humpback-clever.ngrok-free.app 3000"
     },
     "dependencies": {
         "@dicebear/collection": "^9.2.3",
@@ -42,6 +43,7 @@
         "@radix-ui/react-toggle-group": "^1.1.10",
         "@radix-ui/react-tooltip": "^1.2.7",
         "@stream-io/node-sdk": "^0.5.1",
+        "@stream-io/openai-realtime-api": "^0.2.0",
         "@stream-io/video-react-sdk": "^1.18.0",
         "@tanstack/react-query": "^5.76.1",
         "@tanstack/react-table": "^8.21.3",
@@ -92,5 +94,8 @@
         "tsx": "^4.19.4",
         "tw-animate-css": "^1.3.6",
         "typescript": "^5"
+    },
+    "optionalDependencies": {
+        "bufferutil": "^4.0.9"
     }
 }
