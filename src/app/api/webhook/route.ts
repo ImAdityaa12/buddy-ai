@@ -91,11 +91,18 @@ export async function POST(req: NextRequest) {
             .from(agents)
             .where(eq(agents.id, existingMeeting.agentId));
 
+        if (!existingAgent) {
+            return NextResponse.json(
+                { error: 'Agent not found' },
+                { status: 400 }
+            );
+        }
+
         const call = streamVideo.video.call('default', meetingId);
         const realtimeClient = await streamVideo.video.connectOpenAi({
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
-            agentUserId: existingAgent.userId,
+            agentUserId: existingAgent.id,
         });
 
         realtimeClient.updateSession({
