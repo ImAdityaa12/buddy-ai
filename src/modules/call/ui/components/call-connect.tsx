@@ -10,6 +10,7 @@ import {
 import '@stream-io/video-react-sdk/dist/css/styles.css';
 import { useTRPC } from '@/trpc/client';
 import { useMutation } from '@tanstack/react-query';
+import CallUI from './call-ui';
 interface CallConnectProps {
     meetingId: string;
     meetingName: string;
@@ -78,7 +79,9 @@ const CallConnect = ({
 
     return (
         <StreamVideo client={client}>
-            <StreamCall call={call}></StreamCall>
+            <StreamCall call={call}>
+                <CallUI meetingName={meetingName} />
+            </StreamCall>
         </StreamVideo>
     );
 };
