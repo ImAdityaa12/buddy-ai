@@ -10,7 +10,7 @@ import {
 } from '@stream-io/node-sdk';
 import { and, eq, not } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
-
+import { inngest } from '@/inngest/client';
 function verifySignatureWithSDK(body: string, signature: string): boolean {
     return streamVideo.verifyWebhook(body, signature);
 }
@@ -178,7 +178,13 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // TODO: Call inggest background job here
+        await inngest.send({
+            name: 'meetings/processing',
+            data: {
+                meetingId: updatedMeeting.id,
+                transcriptUrl: updatedMeeting.transcriptUrl,
+            },
+        });
     } else if (eventType === 'call.recording_ready') {
         const event = payload as CallRecordingReadyEvent;
         const meetingId = event.call_cid.split(':')[1];
