@@ -15,6 +15,7 @@ import { GeneratedAvatar } from '@/components/generated-avatar';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { formatDuration } from '@/lib/utils';
+import Transcript from './transcript';
 interface CompletedStateProps {
     data: MeetingGetOne;
 }
@@ -185,6 +186,9 @@ const CompletedState = ({ data }: CompletedStateProps) => {
                             </div>
                         </div>
                     </div>
+                </TabsContent>
+                <TabsContent value="transcript">
+                    <Transcript meetingId={data.id} />
                 </TabsContent>
             </Tabs>
         </div>
