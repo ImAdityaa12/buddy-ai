@@ -126,6 +126,13 @@ const CompletedState = ({ data }: CompletedStateProps) => {
                                                 {...props}
                                             />
                                         ),
+                                        h4: (props) => (
+                                            <h4
+                                                className="text-md font-medium mb-2"
+                                                {...props}
+                                            />
+                                        ),
+
                                         p: (props) => (
                                             <p
                                                 className="mb-6 leading-relaxed"
