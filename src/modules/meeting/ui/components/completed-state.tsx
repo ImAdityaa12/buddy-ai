@@ -1,6 +1,6 @@
 import React from 'react';
 import { MeetingGetOne } from '../../types';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     BookOpenTextIcon,
@@ -51,6 +51,15 @@ const CompletedState = ({ data }: CompletedStateProps) => {
                         </TabsList>
                     </ScrollArea>
                 </div>
+                <TabsContent value="recording">
+                    <div className="bg-white rounded-lg border px-4 py-5">
+                        <video
+                            src={data.recordingUrl!}
+                            className="w-full rounded-lg"
+                            controls
+                        />
+                    </div>
+                </TabsContent>
             </Tabs>
         </div>
     );
