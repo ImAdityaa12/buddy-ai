@@ -206,8 +206,6 @@ export async function POST(req: NextRequest) {
                 recordingUrl: event.call_recording.url,
             })
             .where(eq(meetings.id, meetingId));
-
-        // TODO: Call inggest background job here
     }
 
     return NextResponse.json({
