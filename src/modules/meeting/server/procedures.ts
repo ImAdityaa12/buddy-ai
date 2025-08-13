@@ -103,7 +103,7 @@ export const meetingsRouter = createTRPCRouter({
                 if (speaker) {
                     return {
                         ...item,
-                        speaker,
+                        user: speaker,
                     };
                 } else {
                     return {
