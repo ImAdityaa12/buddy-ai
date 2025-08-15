@@ -7,6 +7,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import LoadingState from '@/components/loading-state';
 import ErrorState from '@/components/error-state';
+import UpgradeView from '../../../modules/premium/ui/views/upgrade-view';
 
 const page = async () => {
     const session = await auth.api.getSession({
@@ -40,7 +41,7 @@ const page = async () => {
                         />
                     }
                 >
-                    page
+                    <UpgradeView />
                 </ErrorBoundary>
             </Suspense>
         </HydrationBoundary>
