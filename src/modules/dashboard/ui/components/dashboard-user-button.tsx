@@ -82,7 +82,10 @@ const DashboardUserButton = () => {
                         </p>
                     </DrawerHeader>
                     <DrawerFooter>
-                        <Button variant={'outline'} onClick={() => {}}>
+                        <Button
+                            variant={'outline'}
+                            onClick={() => authClient.customer.portal()}
+                        >
                             Billing
                             <CreditCardIcon className="size-4 text-black" />
                         </Button>
@@ -113,7 +116,7 @@ const DashboardUserButton = () => {
                         className="size-9 mr-3"
                     />
                 )}
-                <div className="flex flex-col gap-0.5 text-left overflow-hidden flex-1 min-w-0">
+                <div className="flex flex-col gap-0.5 text-left overflow-hidden flex-1 min-w-0 ml-2">
                     <p className="text-sm truncate w-full">{data.user.name}</p>
                     <p className="text-xs truncate w-full">{data.user.email}</p>
                 </div>
@@ -131,7 +134,10 @@ const DashboardUserButton = () => {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer flex items-center justify-between">
+                <DropdownMenuItem
+                    className="cursor-pointer flex items-center justify-between"
+                    onClick={() => authClient.customer.portal()}
+                >
                     Billing
                     <CreditCardIcon className="size-4" />
                 </DropdownMenuItem>
