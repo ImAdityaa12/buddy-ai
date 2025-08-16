@@ -14,6 +14,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { inngest } from '@/inngest/client';
 import OpenAI from 'openai';
 import { streamChat } from '@/lib/stream-chat';
+
+// TODO: Check this will break or not
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { generateAvatarUri } from '@/lib/avatar';
 
