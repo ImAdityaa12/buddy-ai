@@ -58,35 +58,32 @@ const CommandSelect = ({
             >
                 <div>{selectedOption?.children ?? placeholder}</div>
                 <ChevronsUpDownIcon />
-                <CommandResponsiveDialog
-                    open={open}
-                    onOpenChange={handleOpenChange}
-                    shouldFilter={!onSearch}
-                >
-                    <CommandInput
-                        placeholder="search"
-                        onValueChange={onSearch}
-                    />
-                    <CommandList>
-                        <CommandEmpty>
-                            <span className="text-muted-foreground text-sm">
-                                No options found
-                            </span>
-                        </CommandEmpty>
-                        {options.map((option) => (
-                            <CommandItem
-                                key={option.id}
-                                onSelect={() => {
-                                    onSelect(option.value);
-                                    setOpen(false);
-                                }}
-                            >
-                                {option.children}
-                            </CommandItem>
-                        ))}
-                    </CommandList>
-                </CommandResponsiveDialog>
             </Button>
+            <CommandResponsiveDialog
+                open={open}
+                onOpenChange={handleOpenChange}
+                shouldFilter={!onSearch}
+            >
+                <CommandInput placeholder="search" onValueChange={onSearch} />
+                <CommandList>
+                    <CommandEmpty>
+                        <span className="text-muted-foreground text-sm">
+                            No options found
+                        </span>
+                    </CommandEmpty>
+                    {options.map((option) => (
+                        <CommandItem
+                            key={option.id}
+                            onSelect={() => {
+                                onSelect(option.value);
+                                setOpen(false);
+                            }}
+                        >
+                            {option.children}
+                        </CommandItem>
+                    ))}
+                </CommandList>
+            </CommandResponsiveDialog>
         </>
     );
 };
