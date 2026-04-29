@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { agents, meetings } from '@/db/schema';
-import { streamVideo } from '@/lib/stream-video';
+import { streamVideo, generateAgentToken } from '@/lib/stream-video';
 import {
     CallEndedEvent,
     CallTranscriptionReadyEvent,
@@ -9,6 +9,7 @@ import {
     CallSessionStartedEvent,
     MessageNewEvent,
 } from '@stream-io/node-sdk';
+import { createRealtimeClient } from '@stream-io/openai-realtime-api';
 import { and, eq, not } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { inngest } from '@/inngest/client';
@@ -28,10 +29,15 @@ function verifySignatureWithSDK(body: string, signature: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+    console.log('[webhook] POST received:', req.method, req.url);
+
     const signature = req.headers.get('x-signature');
     const apiKey = req.headers.get('x-api-key');
 
+    console.log('[webhook] headers — signature:', !!signature, 'apiKey:', !!apiKey);
+
     if (!signature || !apiKey) {
+        console.error('[webhook] Missing signature or api key');
         return NextResponse.json(
             {
                 error: 'Missing signature or api key',
@@ -43,8 +49,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.text();
+    const isValid = verifySignatureWithSDK(body, signature);
+    console.log('[webhook] signature valid:', isValid);
 
-    if (!verifySignatureWithSDK(body, signature)) {
+    if (!isValid) {
         return NextResponse.json(
             { error: 'Invalid signature' },
             { status: 400 }
@@ -60,9 +68,12 @@ export async function POST(req: NextRequest) {
     }
 
     const eventType = (payload as Record<string, unknown>)?.type;
+    console.log('[webhook] event type:', eventType);
     if (eventType === 'call.session_started') {
         const event = payload as CallSessionStartedEvent;
         const meetingId = event.call.custom?.meetingId;
+
+        console.log('[webhook] call.session_started meetingId:', meetingId);
 
         if (!meetingId) {
             return NextResponse.json(
@@ -84,12 +95,13 @@ export async function POST(req: NextRequest) {
                 )
             );
 
+        console.log('[webhook] existingMeeting:', existingMeeting?.id, '| status:', existingMeeting?.status ?? 'NOT FOUND');
+
         if (!existingMeeting) {
-            return NextResponse.json(
-                { error: 'Meeting already exists' },
-                { status: 400 }
-            );
+            // Already active/completed/cancelled — skip silently
+            return NextResponse.json({ status: 'ok' });
         }
+
         await db
             .update(meetings)
             .set({
@@ -111,15 +123,45 @@ export async function POST(req: NextRequest) {
         }
 
         const call = streamVideo.video.call('default', meetingId);
-        const realtimeClient = await streamVideo.video.connectOpenAi({
-            call,
-            openAiApiKey: process.env.OPENAI_API_KEY!,
-            agentUserId: existingAgent.id,
+        const agentToken = generateAgentToken(existingAgent.id, call.cid);
+
+        console.log('[webhook] call.session_started — connecting realtime client', {
+            meetingId,
+            agentId: existingAgent.id,
+            callCid: call.cid,
         });
+
+        const realtimeClient = createRealtimeClient({
+            baseUrl: 'https://video.stream-io-api.com',
+            call,
+            streamApiKey: process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY!,
+            streamUserToken: agentToken,
+            openAiApiKey: process.env.OPENAI_API_KEY!,
+        });
+
+        try {
+            await realtimeClient.connect();
+            console.log('[webhook] realtime client connected');
+        } catch (err) {
+            console.error('[webhook] realtime client connect FAILED:', err);
+            return NextResponse.json({ error: 'Failed to connect realtime client' }, { status: 500 });
+        }
 
         realtimeClient.updateSession({
             instructions: existingAgent.instructions,
+            voice: 'alloy',
+            modalities: ['audio', 'text'],
+            turn_detection: {
+                type: 'server_vad',
+                silence_duration_ms: 500,
+                prefix_padding_ms: 300,
+                threshold: 0.5,
+            },
+            input_audio_transcription: {
+                model: 'whisper-1',
+            },
         });
+        console.log('[webhook] session updated for agent:', existingAgent.name);
     } else if (eventType === 'call.session_participant_left') {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(':')[1];
