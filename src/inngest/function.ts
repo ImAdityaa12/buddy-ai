@@ -4,11 +4,9 @@ import { StreamTranscriptItem } from '@/modules/meeting/types';
 import { db } from '@/db';
 import { agents, meetings, user } from '@/db/schema';
 import { eq, inArray } from 'drizzle-orm';
-import { createAgent, openai, TextMessage } from '@inngest/agent-kit';
+import OpenAI from 'openai';
 
-const summarizer = createAgent({
-    name: 'summarizer',
-    system: `You are an expert summarizer. You write readable, concise, simple content. You are given a transcript of a meeting and you need to summarize it.
+const SUMMARIZER_SYSTEM_PROMPT = `You are an expert summarizer. You write readable, concise, simple content. You are given a transcript of a meeting and you need to summarize it.
 
     Use the following markdown structure for every output:
 
@@ -26,12 +24,7 @@ const summarizer = createAgent({
 
     #### Next Section
     - Feature X automatically does Y
-    - Mention of integration with Z`.trim(),
-    model: openai({
-        model: 'gpt-4o',
-        apiKey: process.env.OPENAI_API_KEY,
-    }),
-});
+    - Mention of integration with Z`.trim();
 
 export const meetingsProcessing = inngest.createFunction(
     { id: 'meetings/processing' },
@@ -97,17 +90,28 @@ export const meetingsProcessing = inngest.createFunction(
             }
         );
 
-        const { output } = await summarizer.run(
-            'Summarize the following transcript:' +
-                JSON.stringify(transcriptWithSpeaker),
-            { step }
-        );
+        const summary = await step.run('summarize', async () => {
+            const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+            const response = await client.chat.completions.create({
+                model: 'gpt-4o',
+                messages: [
+                    { role: 'system', content: SUMMARIZER_SYSTEM_PROMPT },
+                    {
+                        role: 'user',
+                        content:
+                            'Summarize the following transcript:\n' +
+                            JSON.stringify(transcriptWithSpeaker),
+                    },
+                ],
+            });
+            return response.choices[0].message.content ?? '';
+        });
 
         await step.run('save-summary', async () => {
             await db
                 .update(meetings)
                 .set({
-                    summary: (output[0] as TextMessage).content as string,
+                    summary,
                     status: 'completed',
                 })
                 .where(eq(meetings.id, event.data.meetingId));
