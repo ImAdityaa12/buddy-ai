@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { inngest } from '@/inngest/client';
 
 // GET /api/test-inngest
-// Fires a meetings/processing event with a fake local transcript.
-// Requires both `npm run dev` and `npm run dev:inngest` to be running.
+// Fires a meetings/processing event with a fake transcript.
+// Works both locally and in production.
 export async function GET(request: Request) {
     const host = request.headers.get('host') ?? 'localhost:3000';
     const protocol = host.startsWith('localhost') ? 'http' : 'https';
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
         ok: true,
-        message: 'Event sent — check http://localhost:8288',
+        message: 'Event sent — check Inngest dashboard',
         transcriptUrl,
     });
 }
