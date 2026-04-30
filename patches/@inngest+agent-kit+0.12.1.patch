@@ -1,0 +1,26 @@
+diff --git a/node_modules/@inngest/agent-kit/dist/chunk-SDFCXQU3.js b/node_modules/@inngest/agent-kit/dist/chunk-SDFCXQU3.js
+index a962695..4bd753b 100644
+--- a/node_modules/@inngest/agent-kit/dist/chunk-SDFCXQU3.js
++++ b/node_modules/@inngest/agent-kit/dist/chunk-SDFCXQU3.js
+@@ -199,7 +199,7 @@ var stringifyError = (e) => {
+ };
+ var getStepTools = async () => {
+   const asyncCtx = await getAsyncCtx();
+-  return asyncCtx == null ? void 0 : asyncCtx.ctx.step;
++  return asyncCtx == null ? void 0 : asyncCtx.execution?.ctx?.step;
+ };
+ var isInngestFn = (fn) => {
+   if (fn instanceof InngestFunction) {
+diff --git a/node_modules/@inngest/agent-kit/dist/index.cjs b/node_modules/@inngest/agent-kit/dist/index.cjs
+index 62bb7dd..66cb3ff 100644
+--- a/node_modules/@inngest/agent-kit/dist/index.cjs
++++ b/node_modules/@inngest/agent-kit/dist/index.cjs
+@@ -299,7 +299,7 @@ var stringifyError = (e) => {
+ };
+ var getStepTools = async () => {
+   const asyncCtx = await (0, import_experimental.getAsyncCtx)();
+-  return asyncCtx == null ? void 0 : asyncCtx.ctx.step;
++  return asyncCtx == null ? void 0 : asyncCtx.execution?.ctx?.step;
+ };
+ var isInngestFn = (fn) => {
+   if (fn instanceof import_InngestFunction.InngestFunction) {
