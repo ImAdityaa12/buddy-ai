@@ -21,7 +21,8 @@ A modern, full-stack meeting platform built with Next.js that combines video cal
 -   **Database**: PostgreSQL (Neon)
 -   **Video/Chat**: Stream Video & Chat APIs
 -   **State Management**: tRPC + TanStack Query
--   **AI Integration**: OpenAI API
+-   **AI Integration**: Google Gemini — Gemini Live for the real-time in-meeting voice agent (via Stream Vision Agents), plus Gemini for meeting summaries & post-meeting chat
+-   **Realtime Agent**: Stream Vision Agents (Python worker in `agent-worker/`)
 -   **Avatar Generation**: DiceBear
 -   **Icons**: Lucide React
 
@@ -32,6 +33,8 @@ A modern, full-stack meeting platform built with Next.js that combines video cal
 -   Node.js 18+
 -   npm/yarn/pnpm/bun
 -   PostgreSQL database (Neon recommended)
+-   Python 3.10+ and [uv](https://docs.astral.sh/uv/) — for the AI agent worker
+-   A free [Gemini API key](https://aistudio.google.com/apikey)
 
 ### Installation
 
@@ -79,26 +82,37 @@ A modern, full-stack meeting platform built with Next.js that combines video cal
     NEXT_PUBLIC_STREAM_CHAT_API_KEY=your_stream_chat_key
     STREAM_CHAT_SECRET_KEY=your_stream_chat_secret
 
-    # AI Integration
-    OPENAI_API_KEY=your_openai_api_key
+    # AI Integration (Google Gemini — free tier)
+    # Used by the in-meeting voice agent, meeting summaries, and post-meeting chat
+    GEMINI_API_KEY=your_gemini_api_key
+
+    # AI agent worker URL (production only; defaults to http://localhost:8787 in dev)
+    AGENT_WORKER_URL=http://localhost:8787
 
     # Additional Services
     POLAR_ACCESS_TOKEN=your_polar_token
     ```
 
-4. **Run the development server**
+4. **Start the local stack**
 
-    ```bash
-    npm run dev
-    # or
-    yarn dev
-    # or
-    pnpm dev
-    ```
+    The platform runs as a few cooperating services. Open a separate terminal for each:
+
+    | # | Service | Command | Purpose |
+    |---|---------|---------|---------|
+    | 1 | Next.js app | `npm run dev` | Web app + API/webhook → http://localhost:3000 |
+    | 2 | AI agent worker | `cd agent-worker && uv sync && uv run uvicorn main:app --port 8787` | In-meeting voice agent (Gemini Live) — see [`agent-worker/README.md`](agent-worker/README.md) |
+    | 3 | Webhook tunnel | `npm run dev:webhook` | Exposes the webhook to Stream via ngrok |
+    | 4 | Inngest dev server | `npm run dev:inngest` | Background jobs (transcript → summary) |
+
+    - For just the **UI**, terminal 1 is enough.
+    - To test **meetings + the AI agent end-to-end**, run all four. The agent worker reuses the root `.env` for Stream creds and reads `GEMINI_API_KEY`; verify it's healthy at http://localhost:8787/health.
+    - Point your Stream app's **Webhook URL** at the ngrok URL from terminal 3, e.g. `https://<your-ngrok-domain>/api/webhook`.
 
 5. **Open your browser**
 
     Navigate to [http://localhost:3000](http://localhost:3000) to see the application.
+
+> **Note:** The in-meeting agent is **voice-only** (Gemini native audio). With your camera off the video area is black even while the agent is connected and talking — interact by voice.
 
 ## 🏗️ Project Structure
 
