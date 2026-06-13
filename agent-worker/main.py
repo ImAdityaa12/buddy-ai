@@ -82,7 +82,7 @@ async def join(req: JoinRequest):
     return {"status": "joining", "call_id": req.call_id}
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {
         "status": "ok",
