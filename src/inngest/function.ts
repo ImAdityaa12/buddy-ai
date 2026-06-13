@@ -4,7 +4,7 @@ import { StreamTranscriptItem } from '@/modules/meeting/types';
 import { db } from '@/db';
 import { agents, meetings, user } from '@/db/schema';
 import { eq, inArray } from 'drizzle-orm';
-import OpenAI from 'openai';
+import { geminiClient, GEMINI_CHAT_MODEL } from '@/lib/gemini';
 
 const SUMMARIZER_SYSTEM_PROMPT = `You are an expert summarizer. You write readable, concise, simple content. You are given a transcript of a meeting and you need to summarize it.
 
@@ -91,9 +91,8 @@ export const meetingsProcessing = inngest.createFunction(
         );
 
         const summary = await step.run('summarize', async () => {
-            const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-            const response = await client.chat.completions.create({
-                model: 'gpt-4o',
+            const response = await geminiClient.chat.completions.create({
+                model: GEMINI_CHAT_MODEL,
                 messages: [
                     { role: 'system', content: SUMMARIZER_SYSTEM_PROMPT },
                     {

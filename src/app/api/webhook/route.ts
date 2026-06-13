@@ -12,16 +12,11 @@ import {
 import { and, eq, not } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { inngest } from '@/inngest/client';
-import OpenAI from 'openai';
+import { geminiClient, GEMINI_CHAT_MODEL } from '@/lib/gemini';
 import { streamChat } from '@/lib/stream-chat';
 
-// TODO: Check this will break or not
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { generateAvatarUri } from '@/lib/avatar';
-
-const openaiClient = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY!,
-});
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
     return streamVideo.verifyWebhook(body, signature);
@@ -342,13 +337,13 @@ export async function POST(req: NextRequest) {
                     content: message.text || '',
                 }));
 
-            const GPTResponse = await openaiClient.chat.completions.create({
+            const GPTResponse = await geminiClient.chat.completions.create({
                 messages: [
                     { role: 'system', content: instructions },
                     ...previousMessages,
                     { role: 'user', content: text },
                 ],
-                model: 'gpt-4o',
+                model: GEMINI_CHAT_MODEL,
             });
 
             const GPTResponseContent = GPTResponse.choices[0].message.content;
