@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { agents, meetings } from '@/db/schema';
-import { streamVideo, generateAgentToken } from '@/lib/stream-video';
+import { streamVideo } from '@/lib/stream-video';
 import {
     CallEndedEvent,
     CallTranscriptionReadyEvent,
@@ -9,7 +9,6 @@ import {
     CallSessionStartedEvent,
     MessageNewEvent,
 } from '@stream-io/node-sdk';
-import { createRealtimeClient } from '@stream-io/openai-realtime-api';
 import { and, eq, not } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { inngest } from '@/inngest/client';
@@ -122,46 +121,40 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const call = streamVideo.video.call('default', meetingId);
-        const agentToken = generateAgentToken(existingAgent.id, call.cid);
+        // The in-meeting AI agent runs in a separate Python worker (Vision
+        // Agents + Gemini Live). Stream's JS OpenAI-realtime edge only speaks
+        // OpenAI's removed beta protocol, so we ask the worker to join instead.
+        const workerUrl = process.env.AGENT_WORKER_URL ?? 'http://localhost:8787';
 
-        console.log('[webhook] call.session_started — connecting realtime client', {
+        console.log('[webhook] call.session_started — requesting agent join', {
             meetingId,
             agentId: existingAgent.id,
-            callCid: call.cid,
-        });
-
-        const realtimeClient = createRealtimeClient({
-            baseUrl: 'https://video.stream-io-api.com',
-            call,
-            streamApiKey: process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY!,
-            streamUserToken: agentToken,
-            openAiApiKey: process.env.OPENAI_API_KEY!,
+            workerUrl,
         });
 
         try {
-            await realtimeClient.connect();
-            console.log('[webhook] realtime client connected');
-        } catch (err) {
-            console.error('[webhook] realtime client connect FAILED:', err);
-            return NextResponse.json({ error: 'Failed to connect realtime client' }, { status: 500 });
-        }
+            const res = await fetch(`${workerUrl}/join`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    call_type: 'default',
+                    call_id: meetingId,
+                    agent_id: existingAgent.id,
+                    agent_name: existingAgent.name,
+                    instructions: existingAgent.instructions,
+                }),
+            });
 
-        realtimeClient.updateSession({
-            instructions: existingAgent.instructions,
-            voice: 'alloy',
-            modalities: ['audio', 'text'],
-            turn_detection: {
-                type: 'server_vad',
-                silence_duration_ms: 500,
-                prefix_padding_ms: 300,
-                threshold: 0.5,
-            },
-            input_audio_transcription: {
-                model: 'whisper-1',
-            },
-        });
-        console.log('[webhook] session updated for agent:', existingAgent.name);
+            if (!res.ok) {
+                const detail = await res.text();
+                console.error('[webhook] agent worker join FAILED:', res.status, detail);
+            } else {
+                console.log('[webhook] agent worker join requested for:', existingAgent.name);
+            }
+        } catch (err) {
+            // Don't 500 — that would make Stream retry and tear the call down.
+            console.error('[webhook] agent worker unreachable:', err);
+        }
     } else if (eventType === 'call.session_participant_left') {
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(':')[1];

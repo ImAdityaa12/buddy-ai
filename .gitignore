@@ -33,9 +33,17 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local dev credentials (do not commit)
+DEV_CREDENTIALS.local.md
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python agent worker
+**/__pycache__/
+*.pyc
+agent-worker/.venv/

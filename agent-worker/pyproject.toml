@@ -1,0 +1,12 @@
+[project]
+name = "buddy-ai-agent-worker"
+version = "0.1.0"
+description = "Vision Agents + Gemini Live worker that joins Stream calls as the in-meeting AI agent"
+requires-python = ">=3.10"
+dependencies = [
+    "vision-agents[getstream,gemini]",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "python-dotenv>=1.0",
+    "pydantic>=2",
+]
