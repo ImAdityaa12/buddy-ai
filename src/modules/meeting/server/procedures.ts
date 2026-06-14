@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { agents, meetings, user } from '@/db/schema';
+import { agents, meetingActionItems, meetings, user } from '@/db/schema';
 import {
     createTRPCRouter,
     premiumProcedure,
@@ -8,6 +8,7 @@ import {
 import { z } from 'zod';
 import {
     and,
+    asc,
     count,
     desc,
     eq,
@@ -370,5 +371,143 @@ export const meetingsRouter = createTRPCRouter({
                 total: total.count,
                 totalPages,
             };
+        }),
+
+    getActionItems: protectedProcedure
+        .input(z.object({ meetingId: z.string() }))
+        .query(async ({ input, ctx }) => {
+            // Ownership check: the meeting must belong to the caller.
+            const [meeting] = await db
+                .select({ id: meetings.id })
+                .from(meetings)
+                .where(
+                    and(
+                        eq(meetings.id, input.meetingId),
+                        eq(meetings.userId, ctx.auth.user.id)
+                    )
+                );
+
+            if (!meeting) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Meeting Not Found',
+                });
+            }
+
+            return db
+                .select()
+                .from(meetingActionItems)
+                .where(eq(meetingActionItems.meetingId, input.meetingId))
+                .orderBy(
+                    asc(meetingActionItems.completed),
+                    asc(meetingActionItems.createdAt)
+                );
+        }),
+
+    addActionItem: protectedProcedure
+        .input(
+            z.object({
+                meetingId: z.string(),
+                task: z.string().min(1, 'Task is required').max(500),
+                owner: z.string().max(120).nullish(),
+                dueDate: z.string().max(120).nullish(),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            const [meeting] = await db
+                .select({ id: meetings.id })
+                .from(meetings)
+                .where(
+                    and(
+                        eq(meetings.id, input.meetingId),
+                        eq(meetings.userId, ctx.auth.user.id)
+                    )
+                );
+
+            if (!meeting) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Meeting Not Found',
+                });
+            }
+
+            const [created] = await db
+                .insert(meetingActionItems)
+                .values({
+                    meetingId: input.meetingId,
+                    task: input.task.trim(),
+                    owner: input.owner?.trim() || null,
+                    dueDate: input.dueDate?.trim() || null,
+                    source: 'manual',
+                })
+                .returning();
+
+            return created;
+        }),
+
+    toggleActionItem: protectedProcedure
+        .input(z.object({ id: z.string(), completed: z.boolean() }))
+        .mutation(async ({ input, ctx }) => {
+            // Verify the item belongs to a meeting owned by the caller.
+            const [item] = await db
+                .select({ id: meetingActionItems.id })
+                .from(meetingActionItems)
+                .innerJoin(
+                    meetings,
+                    eq(meetingActionItems.meetingId, meetings.id)
+                )
+                .where(
+                    and(
+                        eq(meetingActionItems.id, input.id),
+                        eq(meetings.userId, ctx.auth.user.id)
+                    )
+                );
+
+            if (!item) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Action item not found',
+                });
+            }
+
+            const [updated] = await db
+                .update(meetingActionItems)
+                .set({ completed: input.completed, updatedAt: new Date() })
+                .where(eq(meetingActionItems.id, input.id))
+                .returning();
+
+            return updated;
+        }),
+
+    removeActionItem: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const [item] = await db
+                .select({ id: meetingActionItems.id })
+                .from(meetingActionItems)
+                .innerJoin(
+                    meetings,
+                    eq(meetingActionItems.meetingId, meetings.id)
+                )
+                .where(
+                    and(
+                        eq(meetingActionItems.id, input.id),
+                        eq(meetings.userId, ctx.auth.user.id)
+                    )
+                );
+
+            if (!item) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Action item not found',
+                });
+            }
+
+            const [deleted] = await db
+                .delete(meetingActionItems)
+                .where(eq(meetingActionItems.id, input.id))
+                .returning();
+
+            return deleted;
         }),
 });
