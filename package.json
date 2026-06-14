@@ -9,6 +9,7 @@
         "lint": "next lint",
         "db:push": "drizzle-kit push",
         "db:studio": "drizzle-kit studio",
+        "db:seed": "tsx seed.ts",
         "dev:webhook": "ngrok http --url=improved-humpback-clever.ngrok-free.app 3000",
         "dev:inngest": "npx inngest-cli@latest dev"
     },
