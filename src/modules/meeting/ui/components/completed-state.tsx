@@ -8,6 +8,7 @@ import {
     ClockFadingIcon,
     FileTextIcon,
     FileVideoIcon,
+    GavelIcon,
     ListTodoIcon,
     SparklesIcon,
 } from 'lucide-react';
@@ -19,6 +20,7 @@ import { formatDuration } from '@/lib/utils';
 import Transcript from './transcript';
 import ChatProvider from './chat-provider';
 import ActionItems from './action-items';
+import Decisions from './decisions';
 interface CompletedStateProps {
     data: MeetingGetOne;
 }
@@ -43,6 +45,13 @@ const CompletedState = ({ data }: CompletedStateProps) => {
                             >
                                 <ListTodoIcon />
                                 Action Items
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="decisions"
+                                className="text-muted-foreground rounded-none bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full hover:text-accent-foreground"
+                            >
+                                <GavelIcon />
+                                Decisions
                             </TabsTrigger>
                             <TabsTrigger
                                 value="transcript"
@@ -199,6 +208,9 @@ const CompletedState = ({ data }: CompletedStateProps) => {
                 </TabsContent>
                 <TabsContent value="action-items">
                     <ActionItems meetingId={data.id} />
+                </TabsContent>
+                <TabsContent value="decisions">
+                    <Decisions meetingId={data.id} />
                 </TabsContent>
                 <TabsContent value="transcript">
                     <Transcript meetingId={data.id} />
