@@ -108,3 +108,27 @@ export const meetings = pgTable('meetings', {
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+// Structured action items extracted from a meeting transcript by the
+// post-processing job (see src/inngest/function.ts). Users can also add/remove
+// items manually and check them off.
+export const meetingActionItems = pgTable('meeting_action_items', {
+    id: text('id')
+        .primaryKey()
+        .$defaultFn(() => nanoid()),
+    meetingId: text('meeting_id')
+        .notNull()
+        .references(() => meetings.id, {
+            onDelete: 'cascade',
+        }),
+    task: text('task').notNull(),
+    // Free-text so the model can return a name or "Unassigned"; nullable.
+    owner: text('owner'),
+    // Free-text so the model can return a relative date like "next Friday"; nullable.
+    dueDate: text('due_date'),
+    completed: boolean('completed').notNull().default(false),
+    // Distinguishes AI-extracted items from ones the user added by hand.
+    source: text('source').notNull().default('ai'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
