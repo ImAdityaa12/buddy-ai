@@ -1,3 +1,13 @@
+---
+title: Buddy AI Agent Worker
+emoji: 🤖
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 8787
+pinned: false
+---
+
 # Buddy AI — Agent Worker
 
 The in-meeting AI agent, running on Stream's [Vision Agents](https://github.com/GetStream/Vision-Agents)
