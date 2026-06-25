@@ -132,3 +132,25 @@ export const meetingActionItems = pgTable('meeting_action_items', {
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+// Key decisions captured from a meeting transcript by the post-processing job
+// (see src/inngest/function.ts). Users can also add/remove decisions manually.
+// Unlike action items these aren't "completable" — they're a record of what
+// was decided.
+export const meetingDecisions = pgTable('meeting_decisions', {
+    id: text('id')
+        .primaryKey()
+        .$defaultFn(() => nanoid()),
+    meetingId: text('meeting_id')
+        .notNull()
+        .references(() => meetings.id, {
+            onDelete: 'cascade',
+        }),
+    decision: text('decision').notNull(),
+    // Free-text rationale / background for the decision; nullable.
+    context: text('context'),
+    // Distinguishes AI-extracted decisions from ones the user added by hand.
+    source: text('source').notNull().default('ai'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});

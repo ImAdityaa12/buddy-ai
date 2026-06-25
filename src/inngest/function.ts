@@ -2,7 +2,13 @@ import JSONL from 'jsonl-parse-stringify';
 import { inngest } from './client';
 import { StreamTranscriptItem } from '@/modules/meeting/types';
 import { db } from '@/db';
-import { agents, meetingActionItems, meetings, user } from '@/db/schema';
+import {
+    agents,
+    meetingActionItems,
+    meetingDecisions,
+    meetings,
+    user,
+} from '@/db/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 import { geminiClient, GEMINI_CHAT_MODEL } from '@/lib/gemini';
 
@@ -46,6 +52,27 @@ type ExtractedActionItem = {
     task: string;
     owner: string | null;
     dueDate: string | null;
+};
+
+const DECISIONS_SYSTEM_PROMPT = `You extract the key decisions made during a meeting from its transcript.
+
+Return ONLY valid JSON matching this exact shape:
+{
+  "decisions": [
+    { "decision": "string — a clear statement of what was decided", "context": "string | null — brief rationale or background for the decision if stated, else null" }
+  ]
+}
+
+Rules:
+- Only include real decisions: choices the group actually committed to or agreed on. Do NOT invent decisions.
+- State each decision concisely as a settled outcome ("Ship weekly releases", not "We should maybe release weekly").
+- Put any supporting rationale or background in "context". Use null if none was given.
+- Do NOT include action items or tasks here — only decisions.
+- If there are no decisions, return { "decisions": [] }.`.trim();
+
+type ExtractedDecision = {
+    decision: string;
+    context: string | null;
 };
 
 export const meetingsProcessing = inngest.createFunction(
@@ -193,6 +220,66 @@ export const meetingsProcessing = inngest.createFunction(
                     task: item.task.trim(),
                     owner: item.owner?.trim() || null,
                     dueDate: item.dueDate?.trim() || null,
+                    source: 'ai',
+                }))
+            );
+        });
+
+        const decisions = await step.run('extract-decisions', async () => {
+            const response = await geminiClient.chat.completions.create({
+                model: GEMINI_CHAT_MODEL,
+                response_format: { type: 'json_object' },
+                messages: [
+                    { role: 'system', content: DECISIONS_SYSTEM_PROMPT },
+                    {
+                        role: 'user',
+                        content:
+                            'Extract the decisions from the following transcript:\n' +
+                            JSON.stringify(transcriptWithSpeaker),
+                    },
+                ],
+            });
+
+            const raw = response.choices[0].message.content ?? '{}';
+
+            try {
+                const parsed = JSON.parse(raw) as {
+                    decisions?: ExtractedDecision[];
+                };
+                // Defensive: keep only entries with a non-empty decision string.
+                return (parsed.decisions ?? []).filter(
+                    (item) =>
+                        typeof item?.decision === 'string' &&
+                        item.decision.trim().length > 0
+                );
+            } catch {
+                // Bad JSON shouldn't fail the whole job — just skip extraction.
+                return [] as ExtractedDecision[];
+            }
+        });
+
+        await step.run('save-decisions', async () => {
+            // Idempotent: clear AI-extracted decisions before reinserting so a
+            // retry doesn't duplicate them. Manually-added ones (source !== 'ai')
+            // stay.
+            await db
+                .delete(meetingDecisions)
+                .where(
+                    and(
+                        eq(meetingDecisions.meetingId, event.data.meetingId),
+                        eq(meetingDecisions.source, 'ai')
+                    )
+                );
+
+            if (decisions.length === 0) {
+                return;
+            }
+
+            await db.insert(meetingDecisions).values(
+                decisions.map((item) => ({
+                    meetingId: event.data.meetingId as string,
+                    decision: item.decision.trim(),
+                    context: item.context?.trim() || null,
                     source: 'ai',
                 }))
             );
